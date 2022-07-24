@@ -20,3 +20,7 @@ The board supports the following operations:
    be returned ordered by the most recently added to our system.
 
 ### Assumption
+
+1. We will go with face value for the currentScore of the game to display result.
+2. The Application should remember gameId and use that to update the game information. 
+3. It is not standAlone application it should be used as library.

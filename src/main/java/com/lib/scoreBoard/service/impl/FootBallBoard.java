@@ -1,42 +1,61 @@
 package com.lib.scoreBoard.service.impl;
 
 import com.lib.scoreBoard.factory.GameFactory;
-import com.lib.scoreBoard.service.Game;
 import com.lib.scoreBoard.model.GameType;
+import com.lib.scoreBoard.service.Game;
 import com.lib.scoreBoard.service.ScoreBoard;
+import com.lib.scoreBoard.util.Utility;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 @Getter
 @NoArgsConstructor
 public class FootBallBoard implements ScoreBoard {
 
-    public List<Game> gameBoard = new ArrayList<>();
+    public Map<String, Game> gameBoard = new LinkedHashMap<>();
     public String ScoreBoardId;
 
     @Override
-    public void startGame(String homeTeamName, String awayTeamName) {
+    public String startGame(String homeTeamName, String awayTeamName) {
         Game newFootBallGame = new GameFactory().getNewGame(GameType.FOOTBALL);
-        newFootBallGame.startGame(homeTeamName, awayTeamName);
-        gameBoard.add(newFootBallGame);
+        String gameKey = newFootBallGame.startGame(homeTeamName, awayTeamName);
+        gameBoard.put(gameKey, newFootBallGame);
+        return gameKey;
     }
 
     @Override
-    public boolean finishGame() {
-        return true;
+    public void finishGame(String gameId) {
+        Game footBallGame = gameBoard.get(gameId);
+        if (footBallGame != null) {
+            footBallGame.finishGame();
+        }
+        gameBoard.remove(gameId);
     }
 
     @Override
-    public boolean updateScore(int homeScore, int awayScore) {
-        return true;
+    public boolean updateScore(String gameId, int homeScore, int awayScore) {
+        Game footBallGame = gameBoard.get(gameId);
+        if (footBallGame != null) {
+            footBallGame.updateScore(homeScore, awayScore);
+            gameBoard.remove(gameId);
+            gameBoard.put(gameId, footBallGame);
+        }
+        return false;
+    }
+
+    @Override
+    public Game getGame(String gameId) {
+        return gameBoard.get(gameId);
     }
 
     @Override
     public List<Game> displaySummary() {
-        return gameBoard;
+        return gameBoard.entrySet().stream().map(e -> e.getValue()).sorted(Utility.GAME_COMPARATOR).collect(Collectors.toList());
     }
 
 }
