@@ -8,6 +8,7 @@ import com.lib.scoreBoard.util.Utility;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -17,7 +18,7 @@ import java.util.stream.Collectors;
 @NoArgsConstructor
 public class FootBallBoard implements ScoreBoard {
 
-    public Map<String, Game> gameBoard = new LinkedHashMap<>();
+    public Map<String, Game> gameBoard = Collections.synchronizedMap(new LinkedHashMap<>());
     public String ScoreBoardId;
 
     @Override
