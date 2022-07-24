@@ -29,21 +29,24 @@ public class FootBallBoard implements ScoreBoard {
     }
 
     @Override
-    public void finishGame(String gameId) {
+    public boolean finishGame(String gameId) {
         Game footBallGame = gameBoard.get(gameId);
         if (footBallGame != null) {
             footBallGame.finishGame();
         }
-        gameBoard.remove(gameId);
+        return gameBoard.remove(gameId) != null;
     }
 
     @Override
-    public boolean updateScore(String gameId, int homeScore, int awayScore) {
-        Game footBallGame = gameBoard.get(gameId);
-        if (footBallGame != null) {
-            footBallGame.updateScore(homeScore, awayScore);
-            gameBoard.remove(gameId);
-            gameBoard.put(gameId, footBallGame);
+    public synchronized boolean updateScore(String gameId, int homeScore, int awayScore) {
+        if (homeScore > -1 && awayScore > -1) {
+            Game footBallGame = gameBoard.get(gameId);
+            if (footBallGame != null) {
+                footBallGame.updateScore(homeScore, awayScore);
+                gameBoard.remove(gameId);
+                gameBoard.put(gameId, footBallGame);
+                return true;
+            }
         }
         return false;
     }

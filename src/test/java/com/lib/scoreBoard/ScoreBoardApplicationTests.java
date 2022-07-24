@@ -101,4 +101,41 @@ class ScoreBoardApplicationTests {
         Assertions.assertEquals("Bonnies 1 : Fighting Crusaders 4", scoreBoard.displaySummary().get(1).displayStatistics());
     }
 
+    @Test
+    public void testScoreBoardReturnFalseForInvalidScore() {
+        ScoreBoardFactory factory = new ScoreBoardFactory();
+        ScoreBoard scoreBoard = factory.getScoreBoard(BoardGameType.FOOTBALL);
+        String gameId = scoreBoard.startGame("USA", "UK");
+        boolean result = scoreBoard.updateScore(gameId, -1, 0);
+        Assertions.assertFalse(result);
+        result = scoreBoard.updateScore(gameId, 0, -1);
+        Assertions.assertFalse(result);
+        result = scoreBoard.updateScore(gameId, -1, -1);
+        Assertions.assertFalse(result);
+        result = scoreBoard.updateScore(gameId, 0, 0);
+        Assertions.assertTrue(result);
+        result = scoreBoard.updateScore(gameId, 1, 1);
+        Assertions.assertTrue(result);
+    }
+
+    @Test
+    public void testInvalidInput() {
+        ScoreBoardFactory factory = new ScoreBoardFactory();
+        ScoreBoard scoreBoard = factory.getScoreBoard(BoardGameType.FOOTBALL);
+        String gameId = scoreBoard.startGame("USA", "UK");
+        boolean flag = scoreBoard.updateScore("randomNumber", 0, 1);
+        Assertions.assertFalse(flag);
+        flag = scoreBoard.updateScore(gameId, 0, 1);
+        Assertions.assertTrue(flag);
+        Game randomGame = scoreBoard.getGame("randomNumber");
+        Assertions.assertNull(randomGame);
+        randomGame = scoreBoard.getGame(gameId);
+        Assertions.assertNotNull(randomGame);
+        flag = scoreBoard.finishGame("randomNumber");
+        Assertions.assertFalse(flag);
+        flag = scoreBoard.finishGame(gameId);
+        Assertions.assertTrue(flag);
+    }
+
+
 }

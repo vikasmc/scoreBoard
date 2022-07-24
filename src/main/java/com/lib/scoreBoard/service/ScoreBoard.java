@@ -20,14 +20,14 @@ public interface ScoreBoard {
      *
      * @return boolean to see the Game has been finished or not.
      */
-    void finishGame(String gameId);
+    boolean finishGame(String gameId);
 
     /**
      * Method to Update the Score of the Game.
      *
      * @param gameId Unique ID of the Game for which we need to update the Score for.
-     * @param homeScore Score for the Home Team.
-     * @param awayScore Score for the Away Team.
+     * @param homeScore Score for the Home Team. Must be grater than -1.
+     * @param awayScore Score for the Away Team. Must be Grater than -1.
      * @return boolean to see the Game has been updated or not.
      */
     boolean updateScore(String gameId, int homeScore, int awayScore);
