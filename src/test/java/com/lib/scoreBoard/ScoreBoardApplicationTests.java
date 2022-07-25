@@ -8,6 +8,11 @@ import com.lib.scoreBoard.service.ScoreBoard;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+
 class ScoreBoardApplicationTests {
 
     @Test
@@ -135,6 +140,84 @@ class ScoreBoardApplicationTests {
         Assertions.assertFalse(flag);
         flag = scoreBoard.finishGame(gameId);
         Assertions.assertTrue(flag);
+    }
+
+    @Test
+    public void testBoardWithMultiThread() throws InterruptedException {
+        ScoreBoardFactory factory = new ScoreBoardFactory();
+        ScoreBoard scoreBoard = factory.getScoreBoard(BoardGameType.FOOTBALL);
+        ExecutorService executorService = Executors.newFixedThreadPool(5);
+        Callable<String> runnableTask = () -> {
+            String gameId = scoreBoard.startGame("USA-1", "IND-1");
+            String gameId2 = scoreBoard.startGame("USA-2", "IND-2");
+            String gameId3 = scoreBoard.startGame("USA-3", "IND-3");
+            String gameId4 = scoreBoard.startGame("USA-4", "IND-4");
+            String gameId5 = scoreBoard.startGame("USA-4", "IND-5");
+            scoreBoard.displaySummary();
+            scoreBoard.updateScore(gameId, 0, 1);
+            scoreBoard.displaySummary();
+            scoreBoard.updateScore(gameId, 1, 2);
+            scoreBoard.displaySummary();
+            scoreBoard.finishGame(gameId);
+            scoreBoard.displaySummary();
+            String gameId6 = scoreBoard.startGame("USA-4", "IND-6");
+            String gameId7 = scoreBoard.startGame("USA-4", "IND-7");
+            scoreBoard.finishGame(gameId5);
+            scoreBoard.updateScore(gameId2, 1, 1);
+            scoreBoard.displaySummary();
+            scoreBoard.updateScore(gameId2, 2, 2);
+            scoreBoard.displaySummary();
+            scoreBoard.finishGame(gameId2);
+            scoreBoard.finishGame(gameId7);
+            scoreBoard.finishGame(gameId6);
+            scoreBoard.displaySummary();
+            System.out.println();
+            return "SUCCESS";
+        };
+        Future<String> submit1 = executorService.submit(runnableTask);
+        Future<String> submit2 = executorService.submit(runnableTask);
+        Thread.sleep(800);
+        Future<String> submit3 = executorService.submit(runnableTask);
+        Thread.sleep(800);
+        Future<String> submit4 = executorService.submit(runnableTask);
+        executorService.shutdown();
+        while (!executorService.isTerminated()) {
+            Thread.sleep(1000);
+        }
+        Assertions.assertEquals(8, scoreBoard.displaySummary().size());
+
+    }
+
+    @Test
+    public void testBoardWithMultiThreadsWaitTime() throws InterruptedException {
+        ScoreBoardFactory factory = new ScoreBoardFactory();
+        ScoreBoard scoreBoard = factory.getScoreBoard(BoardGameType.FOOTBALL);
+        ExecutorService executorService = Executors.newFixedThreadPool(5);
+        Callable<String> runnableTask = () -> {
+            String name = Thread.currentThread().getName();
+            String gameId1 = scoreBoard.startGame("USA-1-" + name, "IND-1" + name);
+            String gameId2 = scoreBoard.startGame("USA-2" + name, "IND-2" + name);
+            scoreBoard.displaySummary();
+            scoreBoard.displaySummary();
+            scoreBoard.updateScore(gameId1, 0, 1);
+            scoreBoard.displaySummary();
+            scoreBoard.updateScore(gameId1, 0, 1);
+            scoreBoard.displaySummary();
+            scoreBoard.updateScore(gameId1, 0, 1);
+            scoreBoard.displaySummary();
+            scoreBoard.updateScore(gameId1, 0, 1);
+            scoreBoard.displaySummary();
+            return "SUCCESS";
+        };
+        Future<String> submit1 = executorService.submit(runnableTask);
+        Thread.sleep(800);
+        Future<String> submit2 = executorService.submit(runnableTask);
+        executorService.shutdown();
+        while (!executorService.isTerminated()) {
+            Thread.sleep(1000);
+        }
+        Assertions.assertEquals(4, scoreBoard.displaySummary().size());
+
     }
 
 

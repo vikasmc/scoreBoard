@@ -58,7 +58,7 @@ public class FootBallBoard implements ScoreBoard {
     }
 
     @Override
-    public List<Game> displaySummary() {
+    public synchronized List<Game> displaySummary() {
         return gameBoard.entrySet().stream().map(e -> e.getValue()).sorted(Utility.GAME_COMPARATOR).collect(Collectors.toList());
     }
 
